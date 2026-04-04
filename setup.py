@@ -61,8 +61,8 @@ data = [
 ]
 
 for root, dirs, files in [x for x in os.walk('content') if len(x[2])]:
-	data.append(('share/unknown-horizons/{0!s}'.format(root),
-		['{0!s}/{1!s}'.format(root, f) for f in files]))
+	data.append(('share/unknown-horizons/{!s}'.format(root),
+		['{!s}/{!s}'.format(root, f) for f in files]))
 
 packages = []
 for root, dirs, files in os.walk('horizons'):
@@ -71,7 +71,7 @@ for root, dirs, files in os.walk('horizons'):
 # Add enet files for build platform
 systemtype = platform.system().lower()
 arch = platform.machine()
-enetdir = "horizons/network/{0!s}-x{1!s}".format(systemtype, arch[-2:])
+enetdir = "horizons/network/{!s}-x{!s}".format(systemtype, arch[-2:])
 package_data = {enetdir: ['*.so']}
 
 
@@ -176,7 +176,7 @@ class _build_i18n(distutils.cmd.Command):
 			return
 
 		if self.bug_contact is not None:
-			os.environ["XGETTEXT_ARGS"] = "--msgid-bugs-address={0}".format(self.bug_contact)
+			os.environ["XGETTEXT_ARGS"] = "--msgid-bugs-address={}".format(self.bug_contact)
 		data_files = self.distribution.data_files
 		if data_files is None:
 			# in case not data_files are defined in setup.py

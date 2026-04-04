@@ -56,7 +56,7 @@ def exit_with_error(title, message):
 	"""
 	Print an error (optionally showing a window using TK), and exit the game.
 	"""
-	print('Error: {0}\n{1}'.format(title, message))
+	print('Error: {}\n{}'.format(title, message))
 	try:
 		import tkinter
 		import tkinter.messagebox as messagebox
@@ -343,9 +343,9 @@ def setup_fife():
 			exit_with_error('Failed to load module fife', 'Below directory paths were tested:\n' + directories)
 
 	from fife import fife
-	fife_version_major = fife.getMajor() if hasattr(fife, 'getMajor') else 'unknown'
-	fife_version_minor = fife.getMinor() if hasattr(fife, 'getMinor') else 'unknown'
-	fife_version_patch = fife.getPatch() if hasattr(fife, 'getPatch') else 'unknown'
+	fife_version_major = fife.get_major() if hasattr(fife, 'get_major') else 'unknown'
+	fife_version_minor = fife.get_minor() if hasattr(fife, 'get_minor') else 'unknown'
+	fife_version_patch = fife.get_patch() if hasattr(fife, 'get_patch') else 'unknown'
 
 	from horizons.constants import VERSION
 	if (fife_version_major, fife_version_minor, fife_version_patch) < VERSION.REQUIRED_FIFE_VERSION:
