@@ -50,8 +50,6 @@ Type         | Where?
 -------------|-----------------------------------------------------------------------
 Discord      | https://discord.gg/VX6m2ZX
 Bug Tracker  | https://github.com/unknown-horizons/unknown-horizons/issues
-IRC Channel  | irc://irc.freenode.net/unknown-horizons
-Web IRC Link | https://webchat.freenode.net/?channels=unknown-horizons
 
 More support info [here](https://github.com/unknown-horizons/unknown-horizons/wiki/Support-Infos).
 
