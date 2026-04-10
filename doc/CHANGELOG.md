@@ -3,6 +3,7 @@ CHANGELOG Unknown Horizons
 
 | Release | Current savegame revision |
 |---|---|
+| 2026.1 | 77 |
 | 2019.1 | 77 |
 | 2017.2 | 76 |
 | 2017.1 | 76 |
@@ -20,6 +21,15 @@ CHANGELOG Unknown Horizons
 | 2010.1 | 8 |
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+2026-XX-XX: Milestone 2026.1
+----------------------------
+changelog date: 11th Apr 2026
+
+### Codebase
+
+Bugfixes:
+ - #2905 Crash (fix ValueError in Goal.__str__ by changing format from {:d} to {:.2f}. this will handle int and float values.)
+
 2019-01-11: Milestone 2019.1
 ----------------------------
 changelog date: 9th Jan 2019
