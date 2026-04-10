@@ -82,5 +82,5 @@ class Goal:
 		return self.sequence_number < other.sequence_number
 
 	def __str__(self):
-		return 'Goal({:d}): {}({:d})'.format(
+		return 'Goal({:.2f}): {}({:d})'.format(
 			self.priority, self.__class__.__name__, self.sequence_number)
