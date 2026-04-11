@@ -80,7 +80,7 @@ class ResourceDeposit(NatureBuilding):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
-	def initialize(self, inventory=None, **kwargs):
+	def initialize(self, inventory:dict=None, **kwargs):
 		super().initialize(**kwargs)
 
 		# If we have an inventory, then we are rebuilding a deposit after destructing a mine on top of it
