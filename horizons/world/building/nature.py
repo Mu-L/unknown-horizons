@@ -1,3 +1,4 @@
+from component.storagecomponent import StorageComponent
 from horizons.constants import BUILDINGS, LAYERS
 from horizons.scheduler import Scheduler
 from horizons.world.building.buildable import BuildableRect, BuildableSingleEverywhere
@@ -75,6 +76,21 @@ class ResourceDeposit(NatureBuilding):
 	tearable = False
 	layer = LAYERS.OBJECTS
 	walkable = False
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		print(kwargs)
+
+	def initialize(self, inventory=None, **kwargs):
+		super().initialize(**kwargs)
+
+		# If we have an inventory, then we are rebuilding a deposit after destructing a mine on top of it
+		if inventory is not None:
+			for res, amount in inventory.items():
+				# Set the number of resources available in the deposit to the amount we retrieved from the mine
+				self.get_component(StorageComponent).inventory.reset(res)
+				self.get_component(StorageComponent).inventory.alter(res, amount)
+
 
 
 class Fish(BuildableSingleEverywhere, BuildingResourceHandler, BasicBuilding):
