@@ -79,7 +79,6 @@ class ResourceDeposit(NatureBuilding):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		print(kwargs)
 
 	def initialize(self, inventory=None, **kwargs):
 		super().initialize(**kwargs)
