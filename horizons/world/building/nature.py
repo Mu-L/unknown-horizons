@@ -1,4 +1,4 @@
-from component.storagecomponent import StorageComponent
+from horizons.component.storagecomponent import StorageComponent
 from horizons.constants import BUILDINGS, LAYERS
 from horizons.scheduler import Scheduler
 from horizons.world.building.buildable import BuildableRect, BuildableSingleEverywhere
