@@ -163,9 +163,11 @@ class BuildingCollector(Collector):
 
 			if target_possible:
 				# check for res here
-				reslist = (self.check_possible_job_target_for(
-					building, res) for res in collectable_res)
-				reslist = [i for i in reslist if i]
+				reslist = [
+					entry
+					for res in collectable_res
+					if (entry := self.check_possible_job_target_for(building, res))
+				]
 
 				if reslist: # we can do something here
 					jobs.append(Job(building, reslist))

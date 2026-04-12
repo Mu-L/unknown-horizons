@@ -302,14 +302,14 @@ class Collector(Unit):
 		# create a new data line.
 		return Job.ResListEntry(res, possible_res_amount, target_inventory_full)
 
-	def get_best_possible_job(self, jobs):
+	def get_best_possible_job(self, jobs: JobList):
 		"""Return best possible job from jobs.
 		"Best" means that the job is highest when the job list was sorted.
 		"Possible" means that we can find a path there.
 		@param jobs: unsorted JobList instance
 		@return: selected Job instance from list or None if no jobs are possible."""
 		jobs.sort_jobs()
-		# check if we can move to that targets
+		# check if we can move to one of the targets
 		for job in jobs:
 			path = self.check_move(job.object.loading_area)
 			if path:
@@ -367,10 +367,11 @@ class Collector(Unit):
 		# deregister at the target we're at
 		self.job.object.remove_incoming_collector(self)
 		# reconsider job now: there might now be more res available than there were when we started
-
-		reslist = (self.check_possible_job_target_for(
-			self.job.object, res) for res in self.get_collectable_res())
-		reslist = [i for i in reslist if i]
+		reslist = [
+			entry
+			for res in self.get_collectable_res()
+			if (entry := self.check_possible_job_target_for(self.job.object, res))
+		]
 		if reslist:
 			self.job.reslist = reslist
 
@@ -531,8 +532,8 @@ class JobList(list):
 		self.sort(key=operator.attrgetter('amount_sum'), reverse=True)
 
 	def _sort_jobs_fewest_available(self, shuffle_first=True):
-		"""Prefer jobs where least amount is available in obj's inventory.
-		Only considers resource of resource list with minimum amount available.
+		"""Prefer jobs where the least amount is available in obj's inventory.
+		Only considers resource of a resource list with a minimum amount available.
 		This is supposed to fix urgent shortages."""
 		# shuffle list before sorting, so that jobs with same value have equal chance
 		if shuffle_first:
@@ -541,16 +542,37 @@ class JobList(list):
 		self.sort(key=lambda job: min(inventory[res] for res in job.resources), reverse=False)
 
 	def _sort_jobs_fewest_available_and_distance(self):
-		"""Sort jobs by distance, but secondarily also consider fewest available resources"""
-		# python sort is stable, so two sequenced sorts work.
-		self._sort_jobs_fewest_available(shuffle_first=False)
-		self._sort_jobs_distance()
+		"""Sort jobs by distance, but secondarily also consider the fewest available resources"""
+		inventory = self.collector.get_home_inventory()
+		collector_point = self.collector.position
+
+		# Sort priority:
+		# 1. Distance (ascending) - closest targets first
+		# 2. Fewest available (ascending) - targets which have the lowest inventory
+		self.sort(
+			key=lambda job: (
+				collector_point.distance(job.object.loading_area),
+				min(inventory[res] for res in job.resources)
+			)
+		)
 
 	def _sort_jobs_for_storage_collector(self):
 		"""Special sophisticated sorting routing for storage collectors.
 		Same as fewest_available_and_distance_, but also considers whether target inv is full."""
-		self._sort_jobs_fewest_available_and_distance()
-		self._sort_target_inventory_full()
+		inventory = self.collector.get_home_inventory()
+		collector_point = self.collector.position
+
+		# Sort priority:
+		# 1. Target inventory full (descending) - targets that are "clogged" first
+		# 2. Distance (ascending) - closest targets next
+		# 3. Fewest available (ascending) - targets which have the lowest inventory
+		self.sort(
+			key=lambda job: (
+				-job.target_inventory_full_num,
+				collector_point.distance(job.object.loading_area),
+				min(inventory[res] for res in job.resources)
+			)
+		)
 
 	def _sort_jobs_distance(self):
 		"""Prefer targets that are nearer"""
