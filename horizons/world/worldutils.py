@@ -255,34 +255,24 @@ def add_nature_objects(world, natural_resource_multiplier):
 	# add trees, wild animals, and fish
 	for island in world.islands:
 		for (x, y), tile in sorted(island.ground_map.items()):
-			# add trees based on adjacent trees
-			for (dx, dy) in fish_directions:
-				position = Point(x + dx, y + dy)
-				newTile = world.get_tile(position)
+			position = Point(x, y)
 
-				if check_tile_for_tree(world, position, newTile) and newTile.object is not None and newTile.object.id == BUILDINGS.TREE and world.session.random.randint(0, 2) == 0 and Tree.check_build(world.session, tile, check_settlement=False):
-					building = Build(Tree, x, y, island, 45 + world.session.random.randint(0, 3) * 90, ownerless=True)(issuer=None)
-					if world.session.random.randint(0, WILD_ANIMAL.POPULATION_INIT_RATIO) == 0:
+			if tile_suitable_for_tree(world, position, tile):
+				# add tree to every nth tile or close to other trees and an animal to one in every M trees
+				should_build_tree = world.session.random.randint(0, 20) == 0 or has_adjacent_trees(world, x, y, tile,
+				                                                                             fish_directions)
+				if should_build_tree and Tree.check_build(world.session, tile, check_settlement=False):
+					building = Build(Tree, x, y, island, 45 + world.session.random.randint(0, 3) * 90,
+									 ownerless=True)(issuer=None)
+					if world.session.random.randint(0, WILD_ANIMAL.POPULATION_INIT_RATIO) == 0: # add animal to every nth tree
 						CreateUnit(island.worldid, UNITS.WILD_ANIMAL, x, y)(issuer=None)
 					if world.session.random.random() > WILD_ANIMAL.FOOD_AVAILABLE_ON_START:
 						building.get_component(StorageComponent).inventory.alter(RES.WILDANIMALFOOD, -1)
-
-			# add tree to every nth tile and an animal to one in every M trees
-			if check_tile_for_tree(world, position, newTile) and world.session.random.randint(0, 20) == 0 and \
-			   Tree.check_build(world.session, tile, check_settlement=False):
-				building = Build(Tree, x, y, island, 45 + world.session.random.randint(0, 3) * 90,
-				                 ownerless=True)(issuer=None)
-				if world.session.random.randint(0, WILD_ANIMAL.POPULATION_INIT_RATIO) == 0: # add animal to every nth tree
-					CreateUnit(island.worldid, UNITS.WILD_ANIMAL, x, y)(issuer=None)
-				if world.session.random.random() > WILD_ANIMAL.FOOD_AVAILABLE_ON_START:
-					building.get_component(StorageComponent).inventory.alter(RES.WILDANIMALFOOD, -1)
-
-			if world.session.random.randint(0, 20) == 0 and \
-					Ambient.check_build(world.session, tile, check_settlement=False) and \
-					check_tile_for_tree(world, position, newTile):
-				# same check as trees can also be used for ambient stuff
-				building = Build(Ambient, x, y, island, 45 + world.session.random.randint(0, 3) * 90,
-				                 ownerless=True)(issuer=None)
+				elif world.session.random.randint(0, 20) == 0 and \
+						Ambient.check_build(world.session, tile, check_settlement=False):
+					# same check as trees can also be used for ambient stuff
+					Build(Ambient, x, y, island, 45 + world.session.random.randint(0, 3) * 90,
+									 ownerless=True)(issuer=None)
 
 			if 'coastline' in tile.classes and world.session.random.random() < natural_resource_multiplier / 4.0:
 				# try to place fish: from the current position go to a random directions twice
@@ -299,8 +289,18 @@ def add_nature_objects(world, natural_resource_multiplier):
 	# TODO HACK BAD THING revert hack so trees don't start finished
 	Tree.component_templates[1]['ProducerComponent']['start_finished'] = False
 
+def has_adjacent_trees(world, x, y, tile, fish_directions):
+	"""Returns true if there are trees adjacent to the given position."""
+	for (dx, dy) in fish_directions:
+		position = Point(x + dx, y + dy)
+		newTile = world.get_tile(position)
 
-def check_tile_for_tree(world, position, tile):
+		if newTile.object is not None and newTile.object.id == BUILDINGS.TREE and world.session.random.randint(
+			0, 2) == 0:
+			return True
+	return False
+
+def tile_suitable_for_tree(world, position, tile):
 	"""
 	Returns true if the current tile is a grass tile and a tree can be built there.
 	@param position: position of the to be checked tile
